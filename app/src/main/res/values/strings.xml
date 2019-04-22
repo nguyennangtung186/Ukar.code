@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Ukar</string>
+    <string name="title_activity_maps">Ukar</string>
+    <string name="logout">Logout</string>
+    <string name="login">Login</string>
+    <string name="change_password">Change Password</string>
+    <string name="ready">Đang chờ</string>
+    <string name="findDriver">Tìm lái xe</string>
+    <string name="Cancel">Đang tìm lái xe</string>
+    <string name="moving">Đang di chuyển</string>
+    <string name="search">Nhập điểm đến</string>
+    <string name="cancelTrip">Hủy chuyến</string>
+    <string name="finshTrip">Kết thúc chuyến</string>
+    <string name="start">Chờ yêu cầu</string>
+</resources>
