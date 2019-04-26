@@ -95,6 +95,7 @@ public class FlashActivity extends AppCompatActivity {
                 sharedPreferences = getSharedPreferences("Ukar" ,Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("Cookie", cookie);
+                editor.commit();
                 new RoleAsync().execute();
             }
             else {

@@ -59,6 +59,8 @@ import java.util.List;
 import java.util.Locale;
 
 import Model.Info;
+import Model.Trip;
+import Model.TripListener;
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
 import Modules.Route;
@@ -71,7 +73,8 @@ import okhttp3.Response;
 public class MapDriverActivity extends FragmentActivity implements
         OnMapReadyCallback,
         DirectionFinderListener,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener,
+        TripListener {
     private GoogleMap mMap;
     private static final String TAG = com.example.nogam.ukar.MapsActivity.class.getSimpleName();
     private static final String KEY_CAMERA_POSITION = "camera_position";
@@ -90,7 +93,7 @@ public class MapDriverActivity extends FragmentActivity implements
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
-    private String[] listItems = {"Khử hồi", "Một chiều", "Cả hai", "Hủy tìm chuyến"};
+    private String[] listItems = {"Khứ hồi", "Một chiều", "Cả hai", "Hủy tìm chuyến"};
     private String tripType , tripTypeEmployer;
 
     View headerView;
@@ -199,18 +202,10 @@ public class MapDriverActivity extends FragmentActivity implements
                             tripType = "Both";
                         }
                         if (listItems[which].equals("Hủy tìm chuyến")){
-                            new CancelWait().execute();
+                            cancelwaitRequest(cookie);
                         }
                         if (!tripType.isEmpty()){
-                            JSONObject jsonObject = new JSONObject();
-                            try {
-                                jsonObject.put("TripType" , tripType);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            if (jsonObject.length() > 0){
-                                new GetStart().execute(jsonObject.toString());
-                            }
+                            startRequest(tripType , cookie);
                         }
                         dialog.dismiss();
                     }
@@ -231,7 +226,7 @@ public class MapDriverActivity extends FragmentActivity implements
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Toast.makeText(MapDriverActivity.this, "Yes", Toast.LENGTH_SHORT).show();
-                                new Cancel().execute();
+                                cancelTripRequest(cookie);
                                 dialog.dismiss();
                             }
                         });
@@ -260,7 +255,7 @@ public class MapDriverActivity extends FragmentActivity implements
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Toast.makeText(MapDriverActivity.this, "Yes", Toast.LENGTH_SHORT).show();
-                                new Finish().execute();
+                                finishTripRequest(cookie);
                                 dialog.dismiss();
                             }
                         });
@@ -297,7 +292,9 @@ public class MapDriverActivity extends FragmentActivity implements
             }
         });
     }
-
+    void startRequest(String tripType , String cookie){
+        new Trip( tripType , this , cookie).getStart();
+    }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -459,6 +456,68 @@ public class MapDriverActivity extends FragmentActivity implements
             mHandler.postDelayed(CurrentLocation , INTERVAL);
         }
     };
+
+    @Override
+    public void onStartSuccess() {
+        tripType = null;
+        btn_findEmployer.setText(R.string.ready);
+    }
+
+    @Override
+    public void onFindReponse(JSONObject jsonObject) {
+    }
+    @Override
+    public void onCancelFindReponse(JSONObject jsonObject) {
+    }
+    @Override
+    public void onPartnerInfoReponse(JSONObject jsonObject) {
+    }
+    @Override
+    public void onAcceptReponse(JSONObject jsonObject) {
+        if (tripTypeEmployer.equals("Oneway")){
+            String end = endLocation.latitude + "," + endLocation.longitude;
+            String origin = originLocation.latitude + "," + originLocation.longitude;
+            sendRequest(end , origin);
+        }
+        partnerInfo = new Info(jsonObject.optString("fullName") , jsonObject.optString("phoneNumber"));
+        btn_partner.setVisibility(View.VISIBLE);
+        dialogshowed = false;
+        buttonLinear.setVisibility(View.VISIBLE);
+        btn_findEmployer.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onFinishReponse(JSONObject jsonObject) {
+        String errorMessage = jsonObject.optString("errorMessage");
+        if (errorMessage.equals("Success")){
+            btn_findEmployer.setVisibility(View.VISIBLE);
+            buttonLinear.setVisibility(View.INVISIBLE);
+            partnerInfo = null;
+            btn_partner.setVisibility(View.INVISIBLE);
+            btn_findEmployer.setText(R.string.start);
+        }
+    }
+
+    @Override
+    public void onCancelWaitReponse(JSONObject jsonObject) {
+        String errorMessage = jsonObject.optString("errorMessage");
+        if (errorMessage.equals("Success")){
+            btn_findEmployer.setText(R.string.start);
+        }
+    }
+
+    @Override
+    public void onCancelReponse(JSONObject jsonObject) {
+        String errorMessage = jsonObject.optString("errorMessage");
+        if (errorMessage.equals("Success")){
+            btn_findEmployer.setVisibility(View.VISIBLE);
+            buttonLinear.setVisibility(View.INVISIBLE);
+            partnerInfo = null;
+            btn_partner.setVisibility(View.INVISIBLE);
+            btn_findEmployer.setText(R.string.start);
+        }
+    }
+
     class Locations extends AsyncTask<String , Void, String > {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
@@ -520,7 +579,7 @@ public class MapDriverActivity extends FragmentActivity implements
                                     endLocation = new LatLng(trip.optDouble("latitudeDestination"), trip.optDouble("longitudeDestination"));
                                     originLocation = new LatLng(trip.optDouble("latitudeOrigin"), trip.optDouble("longitudeOrigin"));
                                 }
-                                new AcceptTrip().execute();
+                                acceptTripRequest(cookie);
                                 dialog.dismiss();
                             }
                         });
@@ -530,7 +589,7 @@ public class MapDriverActivity extends FragmentActivity implements
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Toast.makeText(MapDriverActivity.this, "No", Toast.LENGTH_SHORT).show();
-                                new RejectTrip().execute();
+                                rejectTripRequest(cookie);
                                 dialog.dismiss();
                             }
                         });
@@ -556,6 +615,7 @@ public class MapDriverActivity extends FragmentActivity implements
                 tripType = "";
                 if (partnerMarker != null){
                     partnerMarker.remove();
+                    partnerMarker = null;
                 }
                 for(Polyline line : polylinePaths)
                 {
@@ -597,100 +657,6 @@ public class MapDriverActivity extends FragmentActivity implements
             //Log.d("AAA", yourCity);
         }
         return yourAddress;
-    }
-    class Cancel extends AsyncTask<Void , Void, String > {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String res ;
-            String json = "ab";
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/cancel")
-                    .header("Content-Type" , "application/json")
-                    .header("Cookie",cookie)
-                    .post(body)
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                //String rescookie =  response.headers("Set-Cookie").get(0).replace("; path=/; secure; samesite=lax; httponly" , "");
-                Log.d("Cancel" , res);
-                //Log.d("AAA" , rescookie);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-        }
-    }
-    class Finish extends AsyncTask<Void , Void, String > {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            String res;
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String json = "ab";
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/finish")
-                    .header("Content-Type", "application/json")
-                    .header("Cookie", cookie)
-                    .post(body)
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                //String rescookie =  response.headers("Set-Cookie").get(0).replace("; path=/; secure; samesite=lax; httponly" , "");
-                Log.d("finish", res);
-                //Log.d("AAA" , rescookie);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-            JSONObject jsonObject = new JSONObject(data);
-            String errorMessage = jsonObject.optString("errorMessage");
-            if (errorMessage.equals("Success")){
-                btn_findEmployer.setVisibility(View.VISIBLE);
-                buttonLinear.setVisibility(View.INVISIBLE);
-                partnerInfo = null;
-                btn_partner.setVisibility(View.INVISIBLE);
-                btn_findEmployer.setText(R.string.start);
-            }
-        }
     }
     class Userinfo extends AsyncTask<Void , Void, String > {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
@@ -741,183 +707,6 @@ public class MapDriverActivity extends FragmentActivity implements
                 AlertDialog alert11 = builder1.create();
                 alert11.show();
             }
-        }
-    }
-    class RejectTrip extends AsyncTask<Void, Void, String> {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-            @Override
-            protected String doInBackground(Void... voids) {
-                Log.d("abc" , "asdasd");
-                String res;
-                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-                String json = "ab";
-                RequestBody body = RequestBody.create(JSON, json);
-                Request request = new Request.Builder()
-                        .url("https://ukarbetezminor.azurewebsites.net/trip/reject")
-                        .header("Content-Type", "application/json")
-                        .header("Cookie", cookie)
-                        .post(body)
-                        .build();
-
-                try {
-                    Log.d("abc" , "asdads");
-                    Response response = okHttpClient.newCall(request).execute();
-                    res = response.body().string();
-                    Log.d("RejectTrip", res);
-                    return res;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                try {
-                    Log.d("RejectTrip" , s);
-                    parseJSon(s);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            private void parseJSon(String data) throws JSONException {
-                if (data == null)
-                    return;
-            }
-    }
-    class AcceptTrip extends AsyncTask<Void, Void, String> {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            String res;
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String json = "ab";
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/accept")
-                    .header("Content-Type", "application/json")
-                    .header("Cookie", cookie)
-                    .post(body)
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                Log.d("AcceptTrip", res);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-            JSONObject jsonObject = new JSONObject(data);
-            JSONObject jsonData = jsonObject.getJSONObject("data");
-            if (tripTypeEmployer.equals("Oneway")){
-                String end = endLocation.latitude + "," + endLocation.longitude;
-                String origin = originLocation.latitude + "," + originLocation.longitude;
-                sendRequest(end , origin);
-            }
-            partnerInfo = new Info(jsonData.optString("fullName") , jsonData.optString("phoneNumber"));
-            btn_partner.setVisibility(View.VISIBLE);
-            dialogshowed = false;
-            buttonLinear.setVisibility(View.VISIBLE);
-            btn_findEmployer.setVisibility(View.INVISIBLE);
-        }
-    }
-    class CancelWait extends AsyncTask<Void, Void, String> {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String res;
-            String json = "ab";
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/cancel-wait")
-                    .header("Content-Type", "application/json")
-                    .header("Cookie", cookie)
-                    .post(body)
-                    //.get()
-                    .build();
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                Log.d("CancelWait", res);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-        }
-    }
-    class GetStart extends AsyncTask<String, Void, String> {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-
-        @Override
-        protected String doInBackground(String... strings) {
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String json = strings[0];
-            String res;
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/get-start")
-                    .header("Content-Type", "application/json")
-                    .header("Cookie", cookie)
-                    .post(body)
-                    //.get()
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                Log.d("GetStart", res);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-            tripType = null;
-            btn_findEmployer.setText(R.string.ready);
         }
     }
     void startRepeatingTask() {
@@ -1025,5 +814,20 @@ public class MapDriverActivity extends FragmentActivity implements
         } else {
             super.onBackPressed();
         }
+    }
+    void acceptTripRequest(String cookie){
+        new Trip(this , cookie).acceptTrip();
+    }
+    void rejectTripRequest(String cookie){
+        new Trip(this , cookie).rejectTrip();
+    }
+    void cancelTripRequest(String cookie){
+        new Trip(this , cookie).cancelTrip();
+    }
+    void finishTripRequest(String cookie){
+        new Trip(this , cookie).finishTrip();
+    }
+    void cancelwaitRequest(String cookie){
+        new Trip(this , cookie).cancelWait();
     }
 }

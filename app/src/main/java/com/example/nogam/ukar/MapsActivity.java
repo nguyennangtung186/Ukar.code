@@ -64,6 +64,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import Model.Info;
+import Model.Trip;
+import Model.TripListener;
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
 import Modules.Route;
@@ -76,7 +78,8 @@ import okhttp3.Response;
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
         DirectionFinderListener,
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener,
+        TripListener {
 
     private GoogleMap mMap;
     private static final String TAG = MapsActivity.class.getSimpleName();
@@ -225,22 +228,10 @@ public class MapsActivity extends FragmentActivity implements
                                 JSONObject jsonObject = new JSONObject();
                                 Log.d("TripType" , tripType);
                                 if (tripType.equals("OneWay")){
-                                    try {
-                                        jsonObject.put("TripType" , "Oneway");
-                                        jsonObject.put("LatitudeDestination", endLocation.latitude);
-                                        jsonObject.put("LongitudeDestination", endLocation.longitude);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    new FindDriver().execute(jsonObject.toString());
+                                    findRequest(tripType , endLocation.latitude , endLocation.longitude , cookie);
                                 }
                                 else {
-                                    try {
-                                        jsonObject.put("TripType" , "Round");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    new FindDriver().execute(jsonObject.toString());
+                                    findRequest(tripType , cookie);
                                 }
                                 dialog.dismiss();
                             }
@@ -270,7 +261,7 @@ public class MapsActivity extends FragmentActivity implements
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Toast.makeText(MapsActivity.this, "Yes", Toast.LENGTH_SHORT).show();
-                                new CancelTrip().execute();
+                                cancelRequest(cookie);
                                 dialog.dismiss();
                             }
                         });
@@ -504,6 +495,64 @@ public class MapsActivity extends FragmentActivity implements
             mHandler.postDelayed(CurrentLocation , INTERVAL);
         }
     };
+
+    @Override
+    public void onStartSuccess() {
+
+    }
+
+    @Override
+    public void onFindReponse(JSONObject jsonObject) {
+        String rejectReason = jsonObject.optString("rejectReason");
+        if (rejectReason.equals("Driver Not Available")) {
+            Toast.makeText(MapsActivity.this, "Không tìm thấy tài xế phù hợp", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            btn_findDriver.setVisibility(View.INVISIBLE);
+            btn_cancelTrip.setVisibility(View.VISIBLE);
+            Log.d("find driver success" ,"yes");
+        }
+    }
+
+    @Override
+    public void onCancelFindReponse(JSONObject jsonObject) {
+        String jsonData = jsonObject.optString("errorMessage");
+        if (jsonData.equals("Success")){
+            btn_findDriver.setVisibility(View.VISIBLE);
+            btn_cancelTrip.setVisibility(View.INVISIBLE);
+            hasDirection = false;
+        }
+        else {
+            Log.d("errorMessage" , jsonData);
+        }
+    }
+
+    @Override
+    public void onPartnerInfoReponse(JSONObject jsonObject) {
+        partnerInfo = new Info(jsonObject.optString("fullName") , jsonObject.optString("phoneNumber"));
+        btn_partner.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onAcceptReponse(JSONObject jsonObject) {
+
+    }
+
+    @Override
+    public void onFinishReponse(JSONObject jsonObject) {
+
+    }
+
+    @Override
+    public void onCancelWaitReponse(JSONObject jsonObject) {
+
+    }
+
+    @Override
+    public void onCancelReponse(JSONObject jsonObject) {
+
+    }
+
     class Locations extends AsyncTask<String , Void, String > {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
         @Override
@@ -575,7 +624,7 @@ public class MapsActivity extends FragmentActivity implements
                 if (first){
                     first = false;
                     btn_partner.setVisibility(View.VISIBLE);
-                    new partnerInfo().execute();
+                    partnerRequest(cookie);
                 }
             }
             if ((trip == null) && (partnerLocation == null)){
@@ -608,92 +657,6 @@ public class MapsActivity extends FragmentActivity implements
                 first = true;
                 partnerInfo = null;
                 btn_partner.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
-    class partnerInfo extends AsyncTask<Void , Void, String > {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-        @Override
-        protected String doInBackground(Void... voids) {
-            String res ;
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/partner")
-                    .header("Content-Type" , "application/json")
-                    .header("Cookie",cookie)
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                Log.d("Info" , res);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-            JSONObject jsonDatas = new JSONObject(data);
-            JSONObject jsonData = jsonDatas.getJSONObject("data");
-            partnerInfo = new Info(jsonData.optString("fullName") , jsonData.optString("phoneNumber"));
-            btn_partner.setVisibility(View.VISIBLE);
-        }
-    }
-    class CancelTrip extends AsyncTask<Void , Void, String > {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-        @Override
-        protected String doInBackground(Void... voids) {
-            String res ;
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String json = "ab";
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/cancel-find")
-                    .header("Content-Type" , "application/json")
-                    .header("Cookie",cookie)
-                    .post(body)
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                Log.d("Canceltrip" , res);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-            JSONObject jsonDatas = new JSONObject(data);
-            String jsonData = jsonDatas.optString("errorMessage");
-            if (jsonData.equals("Success")){
-                btn_findDriver.setVisibility(View.VISIBLE);
-                btn_cancelTrip.setVisibility(View.INVISIBLE);
-                hasDirection = false;
-            }
-            else {
-                Log.d("errorMessage" , jsonData);
             }
         }
     }
@@ -735,56 +698,6 @@ public class MapsActivity extends FragmentActivity implements
                 Intent intent = new Intent(MapsActivity.this , RegisterCar.class);
                 intent.putExtra("Cookie", cookie);
                 MapsActivity.this.startActivity(intent);
-            }
-        }
-    }
-    class FindDriver extends AsyncTask<String , Void, String > {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-
-        @Override
-        protected String doInBackground(String... strings) {
-            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-            String json = strings[0];
-            String res ;
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url("https://ukarbetezminor.azurewebsites.net/trip/find-driver")
-                    .header("Content-Type" , "application/json")
-                    .header("Cookie",cookie)
-                    .post(body)
-                    .build();
-
-            try {
-                Response response = okHttpClient.newCall(request).execute();
-                res = response.body().string();
-                Log.d("find driver" , res);
-                return res;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                parseJSon(s);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        private void parseJSon(String data) throws JSONException {
-            if (data == null)
-                return;
-            JSONObject jsonDatas = new JSONObject(data);
-            JSONObject jsonData = jsonDatas.getJSONObject("data");
-            String rejectReason = jsonData.optString("rejectReason");
-            if (rejectReason.equals("Driver Not Available")) {
-                Toast.makeText(MapsActivity.this, "Không tìm thấy tài xế phù hợp", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                btn_findDriver.setVisibility(View.INVISIBLE);
-                btn_cancelTrip.setVisibility(View.VISIBLE);
-                Log.d("find driver success" ,"yes");
             }
         }
     }
@@ -894,5 +807,17 @@ public class MapsActivity extends FragmentActivity implements
         } else {
             super.onBackPressed();
         }
+    }
+    void findRequest(String tripType , Double LatitudeDestination , Double LongitudeDestination , String cookie){
+        new Trip(tripType , LatitudeDestination , LongitudeDestination , this , cookie).findDriver();
+    }
+    void findRequest(String tripType , String cookie){
+        new Trip(tripType ,  this , cookie).findDriver();
+    }
+    void cancelRequest(String cookie){
+        new Trip(this , cookie).cancelFind();
+    }
+    void partnerRequest(String cookie){
+        new Trip(this , cookie).partnerInfo();
     }
 }
