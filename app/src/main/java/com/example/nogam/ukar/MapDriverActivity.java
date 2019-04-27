@@ -192,7 +192,7 @@ public class MapDriverActivity extends FragmentActivity implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.d("get-start",listItems[which]);
-                        if (listItems[which].equals("Khử hồi")){
+                        if (listItems[which].equals("Khứ hồi")){
                             tripType = "Round";
                         }
                         if (listItems[which].equals("Một chiều")){
