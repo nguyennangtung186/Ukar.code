@@ -434,13 +434,13 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
         Log.d("AAA", "Map ready");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getLocationPermission();
             Log.d("AAA", "get Permission");
         }
         updateLocationUI();
+        mMap = googleMap;
     }
 
 
@@ -756,7 +756,7 @@ public class MapsActivity extends FragmentActivity implements
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
-                //getLocationPermission();
+                getLocationPermission();
             }
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
