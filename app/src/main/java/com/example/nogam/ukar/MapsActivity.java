@@ -439,8 +439,6 @@ public class MapsActivity extends FragmentActivity implements
             getLocationPermission();
             Log.d("AAA", "get Permission");
         }
-        updateLocationUI();
-        mMap = googleMap;
     }
 
 
@@ -720,6 +718,7 @@ public class MapsActivity extends FragmentActivity implements
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
+            updateLocationUI();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},

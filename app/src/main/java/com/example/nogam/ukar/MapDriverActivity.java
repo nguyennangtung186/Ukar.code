@@ -397,13 +397,11 @@ public class MapDriverActivity extends FragmentActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d("AAA", "Map ready");
-
+        mMap = googleMap;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getLocationPermission();
             Log.d("AAA", "get Permission");
         }
-        updateLocationUI();
-        mMap = googleMap;
     }
 
     private final static int INTERVAL = 1000 * 5 ; //2 minutes
@@ -727,6 +725,7 @@ public class MapDriverActivity extends FragmentActivity implements
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
+            updateLocationUI();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
