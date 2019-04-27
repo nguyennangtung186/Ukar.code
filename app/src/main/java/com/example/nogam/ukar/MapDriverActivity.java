@@ -396,14 +396,14 @@ public class MapDriverActivity extends FragmentActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
         Log.d("AAA", "Map ready");
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getLocationPermission();
             Log.d("AAA", "get Permission");
         }
-
         updateLocationUI();
+        mMap = googleMap;
     }
 
     private final static int INTERVAL = 1000 * 5 ; //2 minutes
