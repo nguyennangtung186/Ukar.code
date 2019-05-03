@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -117,7 +119,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private AutoCompleteTextView mSearchText;
     private int AUTOCOMPLETE_REQUEST_CODE = 1;
-    String cookie;
+    String cookie , fullName;
     private String tripType = "Round";
     SharedPreferences sharedPreferences;
     private boolean firstRun , first , hasDirection;
@@ -180,17 +182,6 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     private void init() {
-        headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
-
-        navigationView.setNavigationItemSelectedListener(this);
-
-        // mo menu
-        buttonOpenMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
 
         buttonGps.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -280,22 +271,28 @@ public class MapsActivity extends FragmentActivity implements
         btn_partner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(MapsActivity.this);
-                builder1.setTitle("Thông tin đối tác");
-                String a = "Tên đối tác: " + partnerInfo.getUserName() +"\n" +"Số điện thoại: " + partnerInfo.getPhoneNumber();
-                builder1.setMessage(a);
-                builder1.setCancelable(true);
-                builder1.setPositiveButton(
-                        "Đồng Ý",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                            }
-                        });
-                AlertDialog alert11 = builder1.create();
-                alert11.show();
+                DialogInfo();
             }
         });
+    }
+    private void DialogInfo() {
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = getLayoutInflater();
+        View alertLayout = inflater.inflate(R.layout.info_partner, null);
+        TextView txt_name = alertLayout.findViewById(R.id.name_person);
+        TextView txt_phone = alertLayout.findViewById(R.id.phone_person);
+        Button btn_call = alertLayout.findViewById(R.id.call);
+        btn_call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCallBtnClick();
+                dialogBuilder.dismiss();
+            }
+        });
+        txt_name.setText("Họ và tên: " + partnerInfo.getUserName().toString());
+        txt_phone.setText("Số điện thoại: "+ partnerInfo.getPhoneNumber().toString());
+        dialogBuilder.setView(alertLayout);
+        dialogBuilder.show();
     }
 
     @Override
@@ -697,6 +694,18 @@ public class MapsActivity extends FragmentActivity implements
                 intent.putExtra("Cookie", cookie);
                 MapsActivity.this.startActivity(intent);
             }
+            fullName = jsondata.optString("fullName");
+            headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
+            TextView txt_name = headerView.findViewById(R.id.full_name);
+            txt_name.setText(fullName);
+            navigationView.setNavigationItemSelectedListener(MapsActivity.this);
+            // mo menu
+            buttonOpenMenu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+            });
         }
     }
     void startRepeatingTask()
@@ -740,6 +749,17 @@ public class MapsActivity extends FragmentActivity implements
             }
         }
         updateLocationUI();
+        boolean permissionGranted = false;
+        switch(requestCode){
+            case 9:
+                permissionGranted = grantResults[0]== PackageManager.PERMISSION_GRANTED;
+                if(permissionGranted){
+                    phoneCall();
+                }else {
+                    Toast.makeText(MapsActivity.this, "Bạn không cấp quyền gọi.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
     }
     private void updateLocationUI() {
         if (mMap == null) {
@@ -818,5 +838,31 @@ public class MapsActivity extends FragmentActivity implements
     }
     void partnerRequest(String cookie){
         new Trip(this , cookie).partnerInfo();
+    }
+    private void onCallBtnClick(){
+        if (Build.VERSION.SDK_INT < 23) {
+            phoneCall();
+        }else {
+
+            if (ActivityCompat.checkSelfPermission(MapsActivity.this,
+                    Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+
+                phoneCall();
+            }else {
+                final String[] PERMISSIONS_STORAGE = {Manifest.permission.CALL_PHONE};
+                //Asking request Permissions
+                ActivityCompat.requestPermissions(MapsActivity.this, PERMISSIONS_STORAGE, 9);
+            }
+        }
+    }
+    private void phoneCall(){
+        if (ActivityCompat.checkSelfPermission(MapsActivity.this,
+                Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(Uri.parse("tel:" + partnerInfo.getPhoneNumber().toString()));
+            MapsActivity.this.startActivity(callIntent);
+        }else{
+            Toast.makeText(MapsActivity.this, "You don't assign permission.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

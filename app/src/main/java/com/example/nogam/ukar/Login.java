@@ -100,7 +100,6 @@ public class Login extends AppCompatActivity implements AccountListener {
         rescookie = cookie;
         Log.d("AAA", String.valueOf(jsonReults));
         if (jsonReults) {
-            Toast.makeText(Login.this, "Login", Toast.LENGTH_SHORT).show();
             sharedPreferences = getSharedPreferences("Ukar", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("Cookie", rescookie);

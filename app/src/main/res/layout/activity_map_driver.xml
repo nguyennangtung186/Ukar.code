@@ -55,6 +55,7 @@
                 android:orientation="horizontal"
                 android:id="@+id/liLayout2"
                 android:layout_alignParentBottom="true"
+                android:layout_marginBottom="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:visibility="invisible">
@@ -63,12 +64,18 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/cancelTrip"
+                    android:textColor="@color/white"
+                    android:background="@drawable/shapelogin"
+                    android:shadowColor="@android:color/transparent"
                     android:id="@+id/cancel"/>
                 <Button
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/finshTrip"
+                    android:textColor="@color/white"
+                    android:background="@drawable/shapelogin"
+                    android:shadowColor="@android:color/transparent"
                     android:id="@+id/finish"/>
             </LinearLayout>
             <Button
@@ -77,7 +84,11 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginBottom="10dp"
                 android:text="@string/start"
+                android:textColor="@color/white"
+                android:background="@drawable/shapelogin"
+                android:shadowColor="@android:color/transparent"
                 android:id="@+id/find_employer"/>
 
             <ImageButton

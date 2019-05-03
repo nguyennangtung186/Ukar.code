@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:paddingTop="50dp"
         android:paddingLeft="24dp"
-        android:paddingRight="24dp">
+        android:paddingRight="24dp"
+        >
 
         <!--  Name Label -->
         <android.support.design.widget.TextInputLayout
@@ -20,11 +21,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/white_border"
             android:id="@+id/input_name"
             android:theme="@style/TextLabel"
             android:focusableInTouchMode="true"
-            android:focusable="true" >
+            android:focusable="true"
+            android:textColorHint="@color/white">
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -37,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/white_border"
+            android:textColorHint="@color/white"
             android:id="@+id/input_email"
             android:theme="@style/TextLabel">
             <EditText
@@ -51,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/white_border"
+            android:textColorHint="@color/white"
             android:id="@+id/input_phoneNumber"
             android:theme="@style/TextLabel">
             <EditText
@@ -66,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/white_border"
+            android:textColorHint="@color/white"
             android:id="@+id/input_password"
             android:theme="@style/TextLabel"
             app:passwordToggleEnabled="true"
@@ -102,6 +103,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
+            android:textColor="@color/white"
             android:text="Already a member? Login"
             android:gravity="center"
             android:textSize="16dip"/>

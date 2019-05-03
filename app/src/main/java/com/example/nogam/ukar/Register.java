@@ -137,9 +137,6 @@ public class Register extends AppCompatActivity implements AccountListener {
                     else {
                         role = "Employer";
                     }
-                    Toast.makeText
-                            (getApplicationContext(), "Selected : " + role, Toast.LENGTH_SHORT)
-                            .show();
                     selected = true;
                 }
             }

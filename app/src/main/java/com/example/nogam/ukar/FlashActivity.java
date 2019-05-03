@@ -1,5 +1,6 @@
 package com.example.nogam.ukar;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ public class FlashActivity extends AppCompatActivity {
     String URL = "https://ukarbetezminor.azurewebsites.net/login";
     SharedPreferences sharedPreferences;
     String cookie;
+    ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,8 @@ public class FlashActivity extends AppCompatActivity {
         String password = sharedPreferences.getString("Password" , "");
         Log.d("abc" , username);
         if (username.length() > 0){
+            progressDialog = ProgressDialog.show(FlashActivity.this, "Please wait.",
+                    "Loging ..!", true);
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("username", username);

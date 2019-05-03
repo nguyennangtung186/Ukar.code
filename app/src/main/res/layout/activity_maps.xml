@@ -98,6 +98,10 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:text="@string/findDriver"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/white"
+                android:background="@drawable/shapelogin"
+                android:shadowColor="@android:color/transparent"
                 android:id="@+id/find_driver"/>
             <Button
                 android:layout_width="match_parent"
@@ -106,6 +110,10 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:text="@string/Cancel"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/white"
+                android:background="@drawable/shapelogin"
+                android:shadowColor="@android:color/transparent"
                 android:id="@+id/cancel_trip"
                 android:visibility="invisible"/>
             <Button
@@ -115,6 +123,10 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:text="@string/moving"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/white"
+                android:background="@drawable/shapelogin"
+                android:shadowColor="@android:color/transparent"
                 android:id="@+id/on_trip"
                 android:visibility="invisible"/>
             <ImageButton
