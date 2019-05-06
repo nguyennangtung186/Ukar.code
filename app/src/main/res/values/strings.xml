@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Ukar</string>
     <string name="title_activity_maps">Ukar</string>
-    <string name="logout">Logout</string>
-    <string name="login">Login</string>
-    <string name="change_password">Change Password</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="login">Đănh nhập</string>
+    <string name="change_password">Đổi mật khẩu</string>
     <string name="ready">Đang chờ</string>
     <string name="findDriver">Tìm lái xe</string>
     <string name="Cancel">Đang tìm lái xe</string>
