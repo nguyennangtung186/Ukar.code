@@ -9,20 +9,36 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/button_open_header"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_dehaze_black"
-            android:tint="#000" />
+            android:orientation="horizontal"
+            android:id="@+id/Lil1"
+            android:background="@color/drawer"
+            >
+            <ImageView
+                android:id="@+id/button_open_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/ic_dehaze_black"
+                android:tint="@color/white" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="120dp"
+                android:textSize="20sp"
+                android:text="UKar"
+                android:textColor="@color/white"/>
+        </LinearLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/button_open_header"
-            android:layout_marginTop="8dp"
+            android:layout_below="@id/Lil1"
+            android:layout_marginTop="1dp"
             android:layout_centerInParent="true">
             <fragment
                 android:id="@+id/map"
@@ -66,29 +82,45 @@
                 android:elevation="10dp"
                 android:background="@color/white"
                 android:visibility="invisible"
-                android:weightSum="7"
+                android:weightSum="8"
                 android:orientation="horizontal"
                 android:id="@+id/liLayout">
-                <TextView
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="5"
-                    android:id="@+id/diem_den"
-                    android:background="@drawable/black_border"
-                    android:gravity="center_vertical"
-                    />
+                    android:weightSum="9"
+                    android:orientation="horizontal"
+                    android:background="@drawable/black_border">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="8"
+                        android:id="@+id/diem_den"
+                        android:gravity="center_vertical"
+                        />
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:id="@+id/close"
+                        android:src="@drawable/ic_close"/>
+                </LinearLayout>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="2"
                     android:id="@+id/gia"
-                    android:background="@drawable/black_border"/>
+                    android:background="@drawable/black_border"
+                    android:gravity="center"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:id="@+id/distance"
-                    android:background="@drawable/black_border"/>
+                    android:background="@drawable/black_border"
+                    android:gravity="center"
+                    />
 
             </LinearLayout>
             <Button

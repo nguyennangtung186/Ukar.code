@@ -17,11 +17,14 @@
         android:paddingTop="56dp"
         android:id="@+id/lil"
         >
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="wrap_content"
-            android:layout_height="72dp"
+            android:layout_height="100dp"
             android:layout_marginBottom="24dp"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/logo"
+            android:scaleType="centerCrop"
+            />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

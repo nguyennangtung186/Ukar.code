@@ -108,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements
 
     DrawerLayout drawerLayout;
     ImageView buttonOpenMenu;
-    ImageView buttonGps , btn_partner;
+    ImageView buttonGps , btn_partner , btn_close;
     Button btn_findDriver , btn_cancelTrip , btn_onTrip;
     TextView diem_den , gia , distance;
     RelativeLayout relativeLayout;
@@ -179,6 +179,7 @@ public class MapsActivity extends FragmentActivity implements
         btn_cancelTrip = findViewById(R.id.cancel_trip);
         btn_onTrip = findViewById(R.id.on_trip);
         btn_partner = findViewById(R.id.partner);
+        btn_close = findViewById(R.id.close);
     }
 
     private void init() {
@@ -203,7 +204,27 @@ public class MapsActivity extends FragmentActivity implements
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
             }
         });
+        diem_den.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
 
+                // Start the autocomplete intent.
+                Intent intent = new Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.OVERLAY, fields)
+                        .setCountry("VN")
+                        .build(getApplicationContext());
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+            }
+        });
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tripType = "Round";
+                hasDirection = false;
+                removeTrip();
+            }
+        });
         btn_findDriver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -216,7 +237,6 @@ public class MapsActivity extends FragmentActivity implements
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Toast.makeText(MapsActivity.this, "Yes", Toast.LENGTH_SHORT).show();
-                                JSONObject jsonObject = new JSONObject();
                                 Log.d("TripType" , tripType);
                                 if (tripType.equals("OneWay")){
                                     findRequest(tripType , endLocation.latitude , endLocation.longitude , cookie);
@@ -398,6 +418,7 @@ public class MapsActivity extends FragmentActivity implements
             Log.d("AAA", "Diemden: " + diemden);
             diem_den.setText(diemden);
             distance.setText(route.distance.text);
+            gia.setText("40000 đồng");
             originMarkers.add(mMap.addMarker(new MarkerOptions()
                     .title(route.startAddress)
                     .position(route.startLocation)));
@@ -432,6 +453,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d("AAA", "Map ready");
+        mMap = googleMap;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getLocationPermission();
             Log.d("AAA", "get Permission");
@@ -623,37 +645,40 @@ public class MapsActivity extends FragmentActivity implements
                 }
             }
             if ((trip == null) && (partnerLocation == null)){
-                btn_findDriver.setVisibility(View.VISIBLE);
-                btn_cancelTrip.setVisibility(View.INVISIBLE);
-                btn_onTrip.setVisibility(View.INVISIBLE);
-                if (partnerMarker != null){
-                    partnerMarker.remove();
-                }
-                if (!hasDirection){
-                    for(Polyline line : polylinePaths)
-                    {
-                        line.remove();
-                    }
-                    if (destinationMarkers != null){
-                        for(Marker marker : destinationMarkers)
-                        {
-                            marker.remove();
-                        }
-                    }
-                    if (originMarkers != null){
-                        for(Marker marker : originMarkers)
-                        {
-                            marker.remove();
-                        }
-                    }
-                    relativeLayout.setVisibility(View.VISIBLE);
-                    linearLayout.setVisibility(View.INVISIBLE);
-                }
-                first = true;
-                partnerInfo = null;
-                btn_partner.setVisibility(View.INVISIBLE);
+                removeTrip();
             }
         }
+    }
+    private void removeTrip(){
+        btn_findDriver.setVisibility(View.VISIBLE);
+        btn_cancelTrip.setVisibility(View.INVISIBLE);
+        btn_onTrip.setVisibility(View.INVISIBLE);
+        if (partnerMarker != null){
+            partnerMarker.remove();
+        }
+        if (!hasDirection){
+            for(Polyline line : polylinePaths)
+            {
+                line.remove();
+            }
+            if (destinationMarkers != null){
+                for(Marker marker : destinationMarkers)
+                {
+                    marker.remove();
+                }
+            }
+            if (originMarkers != null){
+                for(Marker marker : originMarkers)
+                {
+                    marker.remove();
+                }
+            }
+            relativeLayout.setVisibility(View.VISIBLE);
+            linearLayout.setVisibility(View.INVISIBLE);
+        }
+        first = true;
+        partnerInfo = null;
+        btn_partner.setVisibility(View.INVISIBLE);
     }
     class Userinfo extends AsyncTask<Void , Void, String > {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
