@@ -339,7 +339,6 @@ public class MapsActivity extends FragmentActivity implements
 
 
             case R.id.change_password: {
-                Toast.makeText(this, getString(R.string.change_password), Toast.LENGTH_LONG).show();
                 onBackPressed();
                 break;
             }
@@ -623,6 +622,7 @@ public class MapsActivity extends FragmentActivity implements
                 Log.d("partnerLocation" , partnerLocation.toString());
                 btn_cancelTrip.setVisibility(View.INVISIBLE);
                 btn_onTrip.setVisibility(View.VISIBLE);
+                relativeLayout.setVisibility(View.INVISIBLE);
                 sPartnerLocation = new LatLng(partnerLocation.getDouble("latitude") , partnerLocation.getDouble("longitude"));
                 if (partnerMarker == null){
                     partnerMarker = mMap.addMarker(new MarkerOptions().position(sPartnerLocation).title("Tài xế"));
