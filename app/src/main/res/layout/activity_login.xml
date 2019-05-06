@@ -19,7 +19,7 @@
         >
         <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="140dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/logo"
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:hint="Email"
+                android:hint="Số điện thoại hoặc email"
                 android:textColor="@color/white"
                 android:textColorHighlight="@android:color/white"
                 android:textColorHint="@android:color/white"/>
@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:hint="Password"
+                android:hint="Mật khẩu"
                 android:textColor="@color/white"
                 android:textColorHighlight="@android:color/white"
                 android:textColorHint="@android:color/white"
@@ -91,7 +91,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:padding="12dp"
-            android:text="Login"
+            android:text="Đăng nhập"
             android:textColor="@color/white"
             android:background="@drawable/shapelogin"
             android:shadowColor="@android:color/transparent"/>
@@ -100,7 +100,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:text="No account yet? Create one"
+            android:text="Chưa có tài khoản? Tạo ngay"
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="16dip"/>

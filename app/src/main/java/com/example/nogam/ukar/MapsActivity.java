@@ -236,7 +236,6 @@ public class MapsActivity extends FragmentActivity implements
                         "Đồng Ý",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapsActivity.this, "Yes", Toast.LENGTH_SHORT).show();
                                 Log.d("TripType" , tripType);
                                 if (tripType.equals("OneWay")){
                                     findRequest(tripType , endLocation.latitude , endLocation.longitude , cookie);
@@ -252,7 +251,6 @@ public class MapsActivity extends FragmentActivity implements
                         "Hủy bỏ",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapsActivity.this, "No", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
                         });
@@ -271,7 +269,6 @@ public class MapsActivity extends FragmentActivity implements
                         "Đồng Ý",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapsActivity.this, "Yes", Toast.LENGTH_SHORT).show();
                                 cancelRequest(cookie);
                                 dialog.dismiss();
                             }
@@ -280,7 +277,6 @@ public class MapsActivity extends FragmentActivity implements
                         "Hủy bỏ",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapsActivity.this, "No", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
                         });
@@ -527,7 +523,6 @@ public class MapsActivity extends FragmentActivity implements
         else {
             btn_findDriver.setVisibility(View.INVISIBLE);
             btn_cancelTrip.setVisibility(View.VISIBLE);
-            Log.d("find driver success" ,"yes");
         }
     }
 

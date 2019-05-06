@@ -216,7 +216,6 @@ public class MapDriverActivity extends FragmentActivity implements
                         "Đồng Ý",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapDriverActivity.this, "Yes", Toast.LENGTH_SHORT).show();
                                 cancelTripRequest(cookie);
                                 dialog.dismiss();
                             }
@@ -226,7 +225,6 @@ public class MapDriverActivity extends FragmentActivity implements
                         "Từ chối",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapDriverActivity.this, "No", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
                         });
@@ -245,7 +243,6 @@ public class MapDriverActivity extends FragmentActivity implements
                         "Đồng Ý",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapDriverActivity.this, "Yes", Toast.LENGTH_SHORT).show();
                                 finishTripRequest(cookie);
                                 dialog.dismiss();
                             }
@@ -255,7 +252,6 @@ public class MapDriverActivity extends FragmentActivity implements
                         "Từ chối",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapDriverActivity.this, "No", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
                         });
@@ -297,7 +293,6 @@ public class MapDriverActivity extends FragmentActivity implements
         int id = item.getItemId();
         switch (id) {
             case R.id.change_password: {
-                Toast.makeText(this, getString(R.string.change_password), Toast.LENGTH_LONG).show();
                 onBackPressed();
                 break;
             }
@@ -569,7 +564,6 @@ public class MapDriverActivity extends FragmentActivity implements
                         "Đồng Ý",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapDriverActivity.this, "Yes", Toast.LENGTH_SHORT).show();
                                 if (tripTypeEmployer.equals("Oneway")) {
                                     endLocation = new LatLng(trip.optDouble("latitudeDestination"), trip.optDouble("longitudeDestination"));
                                     originLocation = new LatLng(trip.optDouble("latitudeOrigin"), trip.optDouble("longitudeOrigin"));
@@ -583,7 +577,6 @@ public class MapDriverActivity extends FragmentActivity implements
                         "Từ chối",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Toast.makeText(MapDriverActivity.this, "No", Toast.LENGTH_SHORT).show();
                                 rejectTripRequest(cookie);
                                 dialog.dismiss();
                             }
