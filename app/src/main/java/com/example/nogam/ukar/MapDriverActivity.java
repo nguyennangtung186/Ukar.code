@@ -115,6 +115,7 @@ public class MapDriverActivity extends FragmentActivity implements
     SharedPreferences sharedPreferences;
     Info partnerInfo;
     private boolean firstRun;
+    boolean isPassed = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -596,7 +597,7 @@ public class MapDriverActivity extends FragmentActivity implements
                     partnerMarker.setPosition(sPartnerLocation);
                 }
             }
-            if ((partnerLocation == null) && trip == null){
+            if ((partnerLocation == null) && (trip == null) && (isPassed)){
                 btn_findEmployer.setVisibility(View.VISIBLE);
                 buttonLinear.setVisibility(View.INVISIBLE);
                 linearLayout.setVisibility(View.INVISIBLE);
@@ -680,7 +681,8 @@ public class MapDriverActivity extends FragmentActivity implements
                 return;
             JSONObject jsonDatas = new JSONObject(data);
             JSONObject jsondata = jsonDatas.optJSONObject("data");
-            if (!jsondata.optBoolean("driverTestPassed")){
+            isPassed = jsondata.optBoolean("driverTestPassed");
+            if (!isPassed){
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(MapDriverActivity.this);
                 builder1.setTitle("Bạn chưa thi đỗ bài test");
                 builder1.setMessage("Bạn cần vượt qua bài thi mới có thể bắt đầu làm việc");
